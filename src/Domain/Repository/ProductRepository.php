@@ -14,5 +14,5 @@ interface ProductRepository
 
     public function updateProduct(Product $product): bool;
 
-    public function removeProduct(Product $product): bool;
+    public function removeProduct(int $id): bool;
 }

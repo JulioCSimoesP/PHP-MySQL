@@ -26,17 +26,17 @@ class Product
      * @param string $type
      * @param string $name
      * @param string $description
-     * @param string $image
      * @param float $price
+     * @param string $image
      */
-    public function __construct(?int $id, string $type, string $name, string $description, string $image, float $price)
+    public function __construct(?int $id, string $type, string $name, string $description, float $price, string $image = 'logo-serenatto.png')
     {
         $this->id = $id;
         $this->type = $type;
         $this->name = $name;
         $this->description = $description;
-        $this->image = $image;
         $this->price = $price;
+        $this->image = $image;
     }
 
     /**
@@ -45,18 +45,6 @@ class Product
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @param int|null $id
-     */
-    public function setId(int $id): void
-    {
-        if (!is_null($this->id)) {
-            throw new DomainException('ID não pode ser definido mais de uma vez');
-        }
-
-        $this->id = $id;
     }
 
     /**

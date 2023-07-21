@@ -2,7 +2,6 @@
 
 namespace juliocsimoesp\PhpMySql\Infrastructure\Repository;
 
-use DomainException;
 use juliocsimoesp\PhpMySql\Domain\Model\Product;
 use juliocsimoesp\PhpMySql\Domain\Repository\ProductRepository;
 use juliocsimoesp\PhpMySql\Infrastructure\Traits\ProductTypeValidation;
@@ -25,7 +24,7 @@ class PdoProductRepository implements ProductRepository
 
     public function allProducts(): array
     {
-        $readQuery = "SELECT * FROM serenatto.produtos";
+        $readQuery = "SELECT * FROM serenatto.produtos ORDER BY preco";
         $statement = $this->pdo->prepare($readQuery);
         $statement->execute();
 
@@ -34,12 +33,30 @@ class PdoProductRepository implements ProductRepository
 
     public function productsByType(string $type): array
     {
-        $readQuery = "SELECT * FROM serenatto.produtos WHERE tipo = ?";
+        $readQuery = "SELECT * FROM serenatto.produtos WHERE tipo = ? ORDER BY preco;";
         $statement = $this->pdo->prepare($readQuery);
         $statement->bindValue(1, $type, PDO::PARAM_STR);
         $statement->execute();
 
         return $this->hydrateProductList($statement);
+    }
+
+    public function productsById(int $id): Product
+    {
+        $readQuery = "SELECT * FROM serenatto.produtos WHERE id = ?;";
+        $statement = $this->pdo->prepare($readQuery);
+        $statement->bindValue(1, $id, PDO::PARAM_INT);
+        $statement->execute();
+        $queryResult = $statement->fetch();
+
+        return new Product(
+            $queryResult['id'],
+            $queryResult['tipo'],
+            $queryResult['nome'],
+            $queryResult['descricao'],
+            $queryResult['preco'],
+            $queryResult['imagem']
+        );
     }
 
     private function hydrateProductList(PDOStatement $statement): array
@@ -53,8 +70,8 @@ class PdoProductRepository implements ProductRepository
                 $product['tipo'],
                 $product['nome'],
                 $product['descricao'],
-                $product['imagem'],
-                $product['preco']
+                $product['preco'],
+                $product['imagem']
             );
         }
 
@@ -72,11 +89,8 @@ class PdoProductRepository implements ProductRepository
         $statement->bindValue(':descricao', $product->getDescription(), PDO::PARAM_STR);
         $statement->bindValue(':imagem', $product->getImage(), PDO::PARAM_STR);
         $statement->bindValue(':preco', $product->getPrice(), PDO::PARAM_STR);
-        $result = $statement->execute();
 
-        $product->setId($this->pdo->lastInsertId());
-
-        return $result;
+        return $statement->execute();
     }
 
     public function updateProduct(Product $product): bool
@@ -95,11 +109,11 @@ class PdoProductRepository implements ProductRepository
         return $statement->execute();
     }
 
-    public function removeProduct(Product $product): bool
+    public function removeProduct(int $id): bool
     {
         $removeQuery = "DELETE FROM serenatto.produtos WHERE id = :id;";
         $statement = $this->pdo->prepare($removeQuery);
-        $statement->bindValue(':id', $product->getId(), PDO::PARAM_INT);
+        $statement->bindValue(':id', $id, PDO::PARAM_INT);
 
         return $statement->execute();
     }

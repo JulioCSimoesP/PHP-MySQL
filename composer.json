@@ -10,11 +10,15 @@
     }
   ],
   "require": {
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "dompdf/dompdf": "^v2.0.1"
   },
   "autoload": {
     "psr-4": {
       "juliocsimoesp\\PhpMySql\\": "./src/"
-    }
+    },
+    "files": [
+      "src/Infrastructure/Functions/redirection.php"
+    ]
   }
 }
